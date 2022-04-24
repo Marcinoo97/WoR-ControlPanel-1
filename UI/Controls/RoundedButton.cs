@@ -13,6 +13,9 @@ namespace WoRCP.UI
         private int rounding = Theme.ButtonRounding;
         private string text = "Button";
         private Color currentcolor = Theme.Accent;
+        private Font font = Theme.font;
+        private bool glyph;
+        private bool hovering;
         #endregion
 
         #region Properties
@@ -20,7 +23,17 @@ namespace WoRCP.UI
         public Color Color
         {
             get { return currentcolor; }
-            set { currentcolor = value; Invalidate(); }
+            set
+            {
+                if (hovering)
+                {
+                    currentcolor = Color.FromArgb(Theme.WithinRange(value.R + 10), Theme.WithinRange(value.G + 10), Theme.WithinRange(value.B + 10));
+                    Invalidate();
+                    return;
+                }
+                currentcolor = value;
+                Invalidate();
+            }
         }
         [Category("Advanced")]
         public string ButtonText
@@ -33,6 +46,18 @@ namespace WoRCP.UI
         {
             get { return rounding; }
             set { rounding = value; Invalidate(); }
+        }
+        [Category("Advanced")]
+        public bool Glyph
+        {
+            get { return glyph; }
+            set
+            {
+                glyph = value;
+                if (font == Theme.font)  font = Theme.font;
+                else font = Theme.glyphs;
+                Invalidate();
+            }
         }
         #endregion
 
@@ -57,8 +82,8 @@ namespace WoRCP.UI
             else drawBrush = new SolidBrush(Theme.Disabled);
 
             //Drawing the button's string
-            SizeF TextSize = e.Graphics.MeasureString(text, Theme.font);
-            e.Graphics.DrawString(text, Theme.font, drawBrush, Width / 2 - TextSize.Width / 2, Height / 2 - TextSize.Height / 2);
+            SizeF TextSize = e.Graphics.MeasureString(text, font);
+            e.Graphics.DrawString(text, font, drawBrush, Width / 2 - TextSize.Width / 2, Height / 2 - TextSize.Height / 2);
         }
         #endregion
 
@@ -72,13 +97,15 @@ namespace WoRCP.UI
         #region Hover events
         private void RoundedButton_MouseEnter(object sender, EventArgs e)
         {
-            currentcolor = Color.FromArgb(Theme.WithinRange(currentcolor.R + 5), Theme.WithinRange(currentcolor.G + 5), Theme.WithinRange(currentcolor.B + 5));
+            hovering = true;
+            currentcolor = Color.FromArgb(Theme.WithinRange(currentcolor.R + 10), Theme.WithinRange(currentcolor.G + 10), Theme.WithinRange(currentcolor.B + 10));
             Invalidate();
         }
 
         private void RoundedButton_MouseLeave(object sender, EventArgs e)
         {
-            currentcolor = Color.FromArgb(Theme.WithinRange(currentcolor.R - 5), Theme.WithinRange(currentcolor.G - 5), Theme.WithinRange(currentcolor.B - 5));
+            hovering = false;
+            currentcolor = Color.FromArgb(Theme.WithinRange(currentcolor.R - 10), Theme.WithinRange(currentcolor.G - 10), Theme.WithinRange(currentcolor.B - 10));
             Invalidate();
         }
         #endregion
